@@ -1,4 +1,23 @@
 # -*- mode: org; -*-
+* TODO reflection on tokens
+  should we use =reflect.Typeof()=, possibly doing comparison with null
+  instantiations; string comparison on =Name()=; or just use ints in
+  =token.Token()=?
+
+  it would be nice to have lightweight and general comparison
+  predicates: =IsToken(token, lexer.DONE)=; =IsDone(token)=, etc.
+
+  we could force every token type to implement =IsDone()=,
+  =IsOperator()= in the interface, of course. all very cumbersome.
+
+  =match=, too, would have to take a predicate in that case; not an
+  integer.
+
+  #+BEGIN_SRC go
+    func IsToken(token *token, type *token) bool {
+        return reflect.Typeof(token) == reflect.Typeof(type)
+    }
+  #+END_SRC
 * TODO position
   ah, very clever; they have: byte offset and filename in addition:
 

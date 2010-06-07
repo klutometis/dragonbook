@@ -9,6 +9,10 @@ import (
 	"utf8"
 )
 
+const (
+	NUM = new(number)
+)
+
 var reader = bufio.NewReader(os.Stdin)
 var writer = bufio.NewWriter(os.Stdout)
 
