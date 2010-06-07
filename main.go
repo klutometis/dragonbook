@@ -6,10 +6,16 @@ import (
 )
 
 func main() {
-	fmt.Print(lexer.Lexan())
-	fmt.Print(lexer.Lexan())
-	fmt.Print(lexer.Lexan())
-	fmt.Print(lexer.Lexan())
-	fmt.Print(lexer.Lexan())
-	fmt.Print(lexer.Lexan())
+	state := lexer.NewLexerState(0, 0)
+	fmt.Print(lexer.Lexan(state))
+	fmt.Print(state)
+	fmt.Print(lexer.Lexan(state))
+	fmt.Print(state)
+	fmt.Print(lexer.Lexan(state))
+	fmt.Print(state)
+	fmt.Print(lexer.Lexan(state))
+	fmt.Print(state)
+	fmt.Print(lexer.Lexan(state))
+	fmt.Print(state)
+	fmt.Print(lexer.Lexan(state))
 }

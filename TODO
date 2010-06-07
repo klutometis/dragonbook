@@ -1,4 +1,16 @@
 # -*- mode: org; -*-
+* TODO as opposed to explicitly copying struct
+  exploit the copy-on-pass-by-value semantics.
+* TODO file
+  at some point, lexan is going to have to accept files/input streams.
+* TODO repl
+  - forked, compilable :: http://github.com/qrush/go-repl
+  - bash-based :: http://sigpipe.org/go/tools/gorepl
+* TODO lineNumber as pointer
+  should we just take an int and return the new int, updating
+  optionally on the calling side?
+
+  state struct, including line number?
 * TODO Value() and err
   thet fact that Value() returns an error means that we're already
   doing some parsing in the lexer; though the book mentioned that the
