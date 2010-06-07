@@ -1,0 +1,9 @@
+# -*- mode: org; -*-
+* TODO token struct
+  interesting: their token struct include regular expressions (mine,
+  merely predicates?):
+  http://search.cpan.org/~pscust/ParseLex-2.19/lib/Parse/Token.pm
+* TODO fmt.Scan
+  S-expressions over a Scan interface: http://pastie.org/979383
+
+  Scan handles the mechanics, apparently, of rune-by-rune processing.
