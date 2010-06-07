@@ -1,4 +1,15 @@
 # -*- mode: org; -*-
+* TODO position
+  ah, very clever; they have: byte offset and filename in addition:
+
+  #+BEGIN_SRC go
+    type Position struct {
+        Filename string // filename, if any
+        Offset   int    // byte offset, starting at 0
+        Line     int    // line number, starting at 1
+        Column   int    // column number, starting at 1 (character count)
+    }
+  #+END_SRC
 * DONE as opposed to explicitly copying struct
   CLOSED: [2010-06-07 Mon 04:46]
   exploit the copy-on-pass-by-value semantics.
