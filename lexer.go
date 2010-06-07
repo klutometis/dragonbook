@@ -42,10 +42,8 @@ func (number *number) Value() (interface{}, os.Error) {
 	return strconv.Atoi(number.lexeme)
 }
 
-// take advantage of pass-by-value semantics to avoid an explicit
-// copy of state?
-func newNumber(state *LexerState, lexeme string) *number {
-	return &number{tokenFields{CopyLexerState(state), lexeme}}
+func newNumber(state LexerState, lexeme string) *number {
+	return &number{tokenFields{&state, lexeme}}
 }
 
 type symbol struct {
@@ -56,8 +54,8 @@ func (symbol *symbol) Value() (interface{}, os.Error) {
 	return symbol.lexeme, nil
 }
 
-func newSymbol(state *LexerState, lexeme string) *symbol {
-	return &symbol{tokenFields{CopyLexerState(state), lexeme}}
+func newSymbol(state LexerState, lexeme string) *symbol {
+	return &symbol{tokenFields{&state, lexeme}}
 }
 
 type literal struct {
@@ -68,8 +66,8 @@ func (literal *literal) Value() (interface{}, os.Error) {
 	return literal.lexeme, nil
 }
 
-func newLiteral(state *LexerState, lexeme string) *literal {
-	return &literal{tokenFields{CopyLexerState(state), lexeme}}
+func newLiteral(state LexerState, lexeme string) *literal {
+	return &literal{tokenFields{&state, lexeme}}
 }
 
 func unreadBytes(state *LexerState, reader *bufio.Reader, bytes int) {
@@ -131,7 +129,7 @@ func Lexan(state *LexerState) (token, os.Error) {
 				err,
 				unicode.IsDigit,
 				reader)
-			return newNumber(state, lexeme), err
+			return newNumber(*state, lexeme), err
 		} else if unicode.IsLetter(rune) {
 			lexeme, err := readLexeme(state,
 				rune,
@@ -140,9 +138,9 @@ func Lexan(state *LexerState) (token, os.Error) {
 				func (rune int) bool { return unicode.IsDigit(rune) ||
 					unicode.IsLetter(rune)},
 				reader)
-			return newSymbol(state, lexeme), err
+			return newSymbol(*state, lexeme), err
 		} else {
-			return newLiteral(state, string(rune)), err
+			return newLiteral(*state, string(rune)), err
 		}
 	}
 	return nil, os.NewError("this shouldn't happen")

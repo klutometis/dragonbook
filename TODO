@@ -1,5 +1,6 @@
 # -*- mode: org; -*-
-* TODO as opposed to explicitly copying struct
+* DONE as opposed to explicitly copying struct
+  CLOSED: [2010-06-07 Mon 04:46]
   exploit the copy-on-pass-by-value semantics.
 * TODO file
   at some point, lexan is going to have to accept files/input streams.
