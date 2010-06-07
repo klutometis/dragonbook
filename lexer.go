@@ -46,6 +46,18 @@ func newSymbol(lexeme string) *symbol {
 	return &symbol{lexeme}
 }
 
+type literal struct {
+	rune int
+}
+
+func (literal *literal) Value() (interface{}, os.Error) {
+	return literal.rune, nil
+}
+
+func newLiteral(rune int) *literal {
+	return &literal{rune}
+}
+
 func unreadBytes(reader *bufio.Reader, bytes int) {
 	for i := 0; i < bytes; i++ {
 		reader.UnreadByte()
@@ -60,7 +72,20 @@ func lexeme(runes vector.IntVector) string {
 	return string(runes.Data())
 }
 
-func readLexeme(predicate func()) {
+func readLexeme(rune int,
+	size int,
+	err os.Error,
+	predicate func(rune int) bool,
+	reader *bufio.Reader) (string, os.Error) {
+	var runes vector.IntVector
+	for predicate(rune) && size > 0 && err == nil {
+		runes.Push(rune)
+		rune, size, err = reader.ReadRune()
+	}
+	if err != os.EOF {
+		unreadRune(reader, rune)
+	}
+	return lexeme(runes), err
 }
 
 func Lexan() (token, os.Error) {
@@ -74,21 +99,22 @@ func Lexan() (token, os.Error) {
 		} else if rune == '\n' {
 			global.Lineno += 1
 		} else if unicode.IsDigit(rune) {
-			var runes vector.IntVector
-			for unicode.IsDigit(rune) && size > 0 {
-				runes.Push(rune)
-				rune, size, _ = reader.ReadRune()
-			}
-			unreadRune(reader, rune)
-			return newNumber(lexeme(runes)), nil
+			lexeme, err := readLexeme(rune,
+				size,
+				err,
+				unicode.IsDigit,
+				reader)
+			return newNumber(lexeme), err
 		} else if unicode.IsLetter(rune) {
-			var runes vector.IntVector
-			for unicode.IsDigit(rune) || unicode.IsLetter(rune) {
-				runes.Push(rune)
-				rune, size, _ = reader.ReadRune()
-			}
-			unreadRune(reader, rune)
-			return newSymbol(lexeme(runes)), nil
+			lexeme, err := readLexeme(rune,
+				size,
+				err,
+				func (rune int) bool { return unicode.IsDigit(rune) ||
+					unicode.IsLetter(rune)},
+				reader)
+			return newSymbol(lexeme), err
+		} else {
+			return newLiteral(rune), nil
 		}
 	}
 	return nil, os.NewError("this shouldn't happen")

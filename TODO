@@ -1,4 +1,9 @@
 # -*- mode: org; -*-
+* TODO Value() and err
+  thet fact that Value() returns an error means that we're already
+  doing some parsing in the lexer; though the book mentioned that the
+  phases are not utterly distinct, shouldn't we practice it thus
+  initially?
 * TODO token struct
   interesting: their token struct include regular expressions (mine,
   merely predicates?):
