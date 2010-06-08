@@ -1,15 +1,24 @@
-source := global.go lexer.go
-objects := $(patsubst %.go,%.8,$(source))
+include $(GOROOT)/src/Make.$(GOARCH)
 
-.PHONY: clean
+all: main
 
-main: $(objects)
+DIRS=\
+	lexer\
+	parser\
 
-%.8 : %.go
-	8g -o $@ $<
+.PHONY: dirs $(DIRS)
 
-% : %.8
-	8l -o $@ $<
+dirs: $(DIRS)
 
-clean:
-	rm -v -f main $(objects)
+$(DIRS):
+	$(MAKE) -C $@ install
+
+parser: lexer
+
+main: dirs
+
+TARG=main
+GOFILES=\
+	main.go\
+
+include $(GOROOT)/src/Make.cmd

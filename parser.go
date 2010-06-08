@@ -1,6 +1,0 @@
-package parser
-
-import (
-	"./lexer"
-)
-

@@ -1,4 +1,19 @@
 # -*- mode: org; -*-
+* DONE structuring packages
+  CLOSED: [2010-06-08 Tue 03:20]
+  - CLOSING NOTE [2010-06-08 Tue 03:20] \\
+    seems a reasonable solution: submodules in directories; housed under a
+    common namespace.
+  http://groups.google.com/group/golang-nuts/browse_thread/thread/ad6fff21620536c8
+
+  http://code.google.com/p/kylelemons/source/browse/trunk/go/godepgen/godepgen.go
+  http://pastebin.com/FQhErr5T
+  http://pastie.org/989808
+* TODO makefiles and test-cases
+  http://golang.org/doc/code.html
+
+  we probably need a generic file mechanism to write testcases; unless
+  we can simulate stdin.
 * TODO reflection on tokens
   should we use =reflect.Typeof()=, possibly doing comparison with null
   instantiations; string comparison on =Name()=; or just use ints in
@@ -18,6 +33,9 @@
         return reflect.Typeof(token) == reflect.Typeof(type)
     }
   #+END_SRC
+
+  this won't work, though, because constants can't be dynamic; unless,
+  of course, we establish singletons.
 * TODO position
   ah, very clever; they have: byte offset and filename in addition:
 
@@ -34,10 +52,14 @@
   exploit the copy-on-pass-by-value semantics.
 * TODO file
   at some point, lexan is going to have to accept files/input streams.
-* TODO repl
+* DONE repl
+  CLOSED: [2010-06-08 Tue 00:07]
   - forked, compilable :: http://github.com/qrush/go-repl
   - bash-based :: http://sigpipe.org/go/tools/gorepl
-* TODO lineNumber as pointer
+* DONE lineNumber as pointer
+  CLOSED: [2010-06-08 Tue 00:07]
+  - CLOSING NOTE [2010-06-08 Tue 00:07] \\
+    we have a conflated state-position struct (soon to be disassociated?).
   should we just take an int and return the new int, updating
   optionally on the calling side?
 
