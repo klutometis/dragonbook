@@ -2,20 +2,22 @@ include $(GOROOT)/src/Make.$(GOARCH)
 
 all: main
 
-DIRS=\
+.PHONY: all
+
+PACKAGES=\
 	lexer\
 	parser\
 
-.PHONY: dirs $(DIRS)
+.PHONY: packages $(PACKAGES)
 
-dirs: $(DIRS)
+packages: $(PACKAGES)
 
 $(DIRS):
 	$(MAKE) -C $@ install
 
 parser: lexer
 
-main: dirs
+main: packages
 
 TARG=main
 GOFILES=\
