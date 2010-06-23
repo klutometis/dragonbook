@@ -1,6 +1,6 @@
 include $(GOROOT)/src/Make.$(GOARCH)
 
-all: main
+all: packages main
 
 .PHONY: all
 
@@ -12,7 +12,7 @@ PACKAGES=\
 
 packages: $(PACKAGES)
 
-$(DIRS):
+$(PACKAGES):
 	$(MAKE) -C $@ install
 
 parser: lexer

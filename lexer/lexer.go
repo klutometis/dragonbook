@@ -10,9 +10,14 @@ import (
 )
 
 // this isn't going to work; we might have to have
-// const (
-// 	NUM = new(number)
-// )
+const (
+	NONE = iota
+	NUM
+	DIV
+	MOD
+	ID
+	DONE
+)
 
 var reader = bufio.NewReader(os.Stdin)
 var writer = bufio.NewWriter(os.Stdout)
@@ -37,6 +42,7 @@ type token interface {
 type tokenFields struct {
 	state *LexerState
 	lexeme string
+	token int
 }
 
 type number struct {
@@ -48,7 +54,7 @@ func (number *number) Value() (interface{}, os.Error) {
 }
 
 func newNumber(state LexerState, lexeme string) *number {
-	return &number{tokenFields{&state, lexeme}}
+	return &number{tokenFields{&state, lexeme, NUM}}
 }
 
 type symbol struct {
@@ -60,7 +66,7 @@ func (symbol *symbol) Value() (interface{}, os.Error) {
 }
 
 func newSymbol(state LexerState, lexeme string) *symbol {
-	return &symbol{tokenFields{&state, lexeme}}
+	return &symbol{tokenFields{&state, lexeme, ID}}
 }
 
 type literal struct {
@@ -72,7 +78,7 @@ func (literal *literal) Value() (interface{}, os.Error) {
 }
 
 func newLiteral(state LexerState, lexeme string) *literal {
-	return &literal{tokenFields{&state, lexeme}}
+	return &literal{tokenFields{&state, lexeme, NONE}}
 }
 
 func unreadBytes(state *LexerState, reader *bufio.Reader, bytes int) {

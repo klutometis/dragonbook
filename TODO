@@ -1,4 +1,514 @@
 # -*- mode: org; -*-
+* TODO go course day
+  multivariate if:
+
+  #+BEGIN_SRC go
+    if n, err = fd.Write(buf); err != nil { ... }
+  #+END_SRC
+
+  multivariate for:
+
+  #+BEGIN_SRC go
+    for i, j := 0, N; i < j; i, j = i + 1, j - 1 { ... }
+  #+END_SRC
+
+  switch (arbitrary expressions; explicit fallthrough statement;
+  multiple cases comma separated):
+
+  #+BEGIN_SRC go
+    switch count % 7 {
+    case 4, 5, 6: error();
+    case 3: a *= v; fallthrough;
+    ...
+    case 0: return a * v;
+    }
+  #+END_SRC
+
+  #+BEGIN_SRC go
+    switch a, b := x[i], y[j]; {
+        ...
+        }
+  #+END_SRC
+
+  implicit return:
+
+  #+BEGIN_SRC go
+    func sqrt(f float) (v float, ok bool) {
+        if f < 0 { return }         // error case
+        return math.Sqrt(f), true
+    }
+  #+END_SRC
+
+  defer (closing fds, unlocking mutexes, etc.):
+
+  #+BEGIN_SRC go
+    func data(name string) string {
+        f := os.Open(name, os.O_RDONLY, 0)
+        defer f.Close()
+        contents := io.ReadAll(f)
+        return contents
+    }
+  #+END_SRC
+
+  functions can't be declared inside functions (wait: i thought i used
+  an anonymous function awhile back...)
+
+  oh, indeed; but they can't be declared? we can surely assign an
+  anonymous func to a variable, though?
+
+  #+BEGIN_SRC go
+    import (
+        "fmt"
+    )
+    
+    func a(b int) (f func () int) {
+        f = func() int {
+            return b
+        }
+        return
+    }
+    
+    func main() {
+        fmt.Print(a(3)())
+    }
+  #+END_SRC
+
+  testing:
+
+  #+BEGIN_QUOTE
+  to test a package, write a set of go source files within the same
+  package; give the files names of the form =*_test.go=.
+
+  within those files, global functions with names starting
+  =Test[^a-z]*= will be run by the testing tool, =gotest=. those
+  functions should have signature
+  #+BEGIN_SRC go
+    func TestXxxx(t *testing.T) { ... }
+  #+END_SRC
+  #+END_QUOTE
+
+  godoc!
+  
+  take an array's address (for instance, to pass it efficintely to a
+  function):
+
+  #+BEGIN_SRC go
+    func f(a [3]int) { fmt.Println(a) }
+    func fp(a *[3]int) { fmt.Println(a) }
+    
+    func main () {
+        var ar [3]int;
+        f(ar)                       // passes a copy of ar
+        fp(&ar)                     // passes pointer to ar
+        fp(&[3]int{1, 2, 3})
+    }
+  #+END_SRC
+
+  array literals:
+
+  #+BEGIN_SRC go
+    [10]int { 2:1, 7:1 }
+  #+END_SRC
+
+  slices:
+
+  #+BEGIN_SRC go
+    a = ar[7:9]
+    a = &ar                         // same as a = ar[0:len(ar)]
+  #+END_SRC
+
+  #+BEGIN_SRC go
+    var s100 = make([]int, 100)     // slice: 100 ints
+  #+END_SRC
+
+  =new([]int)= returns =*[]int=, while =make([]int)= returns
+  =[]int=. =cap()= reports how long the slice can grow. slices can be
+  used like growable arrays. allocate one using =make()= with length
+  and capacity, and reslice it as it grows:
+
+  #+BEGIN_SRC go
+    var sl = make([]int, 0, 100)    // len 0, cap 100
+    
+    func appendToSlice(i it, sl []int) [] int {
+        if len(sl) == cap(sl) { error(...) }
+        n := len(sl)
+        sl = sl[0:n + 1]            // extend length by 1
+        sl[n] = i
+        return sl
+    }
+  #+END_SRC
+
+  maps:
+
+  #+BEGIN_SRC go
+    m = map[string]float { "1": 1, "pi": 3.1415 }
+    m = make(map[string]float)      // make not new
+    val m1 map[string]float
+    m1 = m
+    one := m["1"]
+    m["2"] = 2
+  #+END_SRC
+
+  testing existence:
+
+  #+BEGIN_SRC go
+    v, ok := m[x]
+  #+END_SRC
+
+  deleting entry:
+
+  #+BEGIN_SRC go
+    m[x] = 0, false
+  #+END_SRC
+
+  for and range:
+
+  #+BEGIN_SRC go
+    m := map[string]float { "1": 1.0 }
+    for k, v := range m {
+        ...
+        }
+    
+    for k := range m {
+        ...
+        }
+  #+END_SRC
+
+  structs:
+
+  #+BEGIN_SRC go
+    var p struct { x, y float }
+    
+    type Point struct { x, y float }
+    var p Point
+  #+END_SRC
+
+  #+BEGIN_SRC go
+    type Point struct { x, y float }
+    var p Point
+    p.x = 7
+    var pp *Point = new(Point)
+    ,*pp = p
+    pp.x = Pi                       // sugar for (*pp).x (no -> notation)
+  #+END_SRC
+
+  making structs:
+
+  #+BEGIN_SRC go
+    var p Point
+    pp := new(Point)
+  #+END_SRC
+
+  anonymous fields:
+
+  #+BEGIN_SRC go
+    type A struct {
+        ax, ay int
+    }
+    
+    type B struct {
+        A;
+        by, by float
+    }
+    
+    b := B{ A{ 1, 2 }, 3.0, 4.0 }
+    
+    fmt.Println(b.A)                // !
+    
+    type C struct {
+        x float
+        int
+        string
+    }
+    
+    c := C{ 3.5, 7, "hello" }
+    fmt.Println(c.x, c.int, c.string)
+  #+END_SRC
+
+  methods on structs:
+
+  #+BEGIN_SRC go
+    type Point struct { x, y float }
+    
+    func (p *Point) Abs() float {
+        return math.Sqrt(p.x * p.x, ...)
+    }
+    
+    // expensive: Point always passed by value
+    func (p Point) Abs() float {
+        return math.Sqrt(p.x * p.x, ...)
+    }
+  #+END_SRC
+
+  non-struct methods:
+
+  #+BEGIN_SRC go
+    type IntVector []int
+    func (v IntVector) Sum() (s int) {
+        ...
+        return
+    }
+    
+    fmt.Println(IntVector{1, 2, 3}.Sum())
+  #+END_SRC
+
+  oh, sweet: possible a solution to the token-integer problem: other
+  types:
+
+  #+BEGIN_SRC go
+    type Day int
+    
+    var dayName = []string {
+        "Monday", ...
+        }
+    
+    func (day Day) String() string {
+        return dayName[day]
+    }
+  #+END_SRC
+
+  one could think of a =type Token int=, for instance.
+
+  enum-like types:
+
+  #+BEGIN_SRC go
+    const (
+        Monday Day = iota
+        Tuesday
+        ...
+        )
+  #+END_SRC
+
+  think of: NONE, NUM, etc.
+
+  define =String()= method for types; no true subclassing.
+
+  interface value
+
+  interface concept, type, values (of that type); methods implemented
+  by a concrete type such as a =struct= form the interface of that
+  type.
+
+  the interface of type =Point= is just =Abs() float= not =func (p
+  *Point) Abs() float= because the interface abstracts away the
+  receiver.
+
+  interface type: specification of an interface:
+
+  #+BEGIN_SRC go
+    type AbsInterface interface {
+        Abs() float
+    }
+  #+END_SRC
+
+  many to many: an interface may be implemented by an arbitrary number
+  of types; a type may implement an arbitrary number of interfaces.
+
+  every type implements EmptyInterface: =type EmptyInterface interface
+  { }=. no data fields.
+
+  buffered vs. unbuffered:
+
+  #+BEGIN_SRC go
+    import (
+        "bufio"
+        "fmt"
+        "os"
+    )
+    
+    func main() {
+        // unbuffered
+        fmt.Fprintf(os.Stdout, "%s, ", "hello")
+        buf := bufio.NewWriter(os.Stdout)
+        defer buf.Flush()
+        fmt.Fprintf(buf, "%s\n", "world!")
+    }
+  #+END_SRC
+
+  anonymous fields:
+
+  #+BEGIN_SRC go
+    type LockedBufferedWriter struct {
+        Mutex
+        bufio.Writer
+    }
+    
+    func (l *LockedBufferedWriter) Write(p []byte) (nn int, err os.Error) {
+        l.Lock()
+        defer l.Unlock()
+        return l.Writer.Write(p)
+    }
+  #+END_SRC
+
+  defer: some kind of add-to-delayed-continuation-stack?
+
+  type assertions:
+
+  #+BEGIN_SRC go
+    var v vector.Vector
+    v.Set(0, 1234.)
+    i := v.At(0)
+    if i != 1234. {}
+    if i.(float) != 1234. {}            // ok
+    if i.(int) != 1234 {}               // run-time error
+    if i.(MyFloat) != 1234. {}          // err: not MyFloat
+  #+END_SRC
+
+  type assertion occur at run-time; compiler rejects assertions
+  guaranteed to fail.
+
+  interface to interface: =si = ai.(SqrInterface)=
+
+  testing with type assertions:
+
+  #+BEGIN_SRC go
+    elem := vector.At(0)
+    if i, ok := elem.(int); ok {
+        fmt.Printf("int: %d\n", i)
+    } else {
+        fmt.Print("unknown type\n")
+    }
+  #+END_SRC
+
+  type switch:
+
+  #+BEGIN_SRC go
+    import "fmt"
+    
+    func main() {
+        var elem interface{}
+        elem = 2
+        switch v := elem.(type) {       // literal "type": wtf? oh, some
+                                        // kind of built-in. converting
+                                        // the elem interface value to the
+                                        // type interface type.
+        case int:
+            fmt.Printf("is int: %d\n", v)
+        case float:
+            fmt.Printf("is float: %g\n", v)
+        default:
+            fmt.Println("unknown")
+        }
+    }
+  #+END_SRC
+
+  does v implement m()?
+
+  #+BEGIN_SRC go
+    type Stringer interface { String() string }
+    
+    if sv, ok := v.(Stringer); ok {
+        fmt.Printfln("implements String(): %s",
+            sv.String());           // sv not v
+    }
+  #+END_SRC
+
+  the =...= argument:
+
+  #+BEGIN_SRC go
+    func Prinf(format string, args ...) (n int, err os.Error)
+  #+END_SRC
+
+  =...= has type =interface{}=. there is no =%u= or =%ld=, only =%d=
+  (=Printf= knows the actual type). =%v= gives the default nice output
+  for values of any type. =%v= identical to =Print= format.
+
+  goroutines invoked with =go=. channel: communication,
+  synchronization: =<-=, communication operator.
+
+  #+BEGIN_SRC go
+    // binary
+    var c chan int
+    c <- 1
+    
+    // unary
+    v = <-c
+    <-c
+    i := <-c
+  #+END_SRC
+
+  communication a form of synchronization (by default, communication
+  is synchronous)
+
+  stream idiom:
+
+  #+BEGIN_SRC go
+    import "fmt"
+    
+    func pump() chan int {
+        ch := make(chan int)
+        go func() {
+            for i := 0; ; i++ {
+                ch <- i
+            }
+        }()
+        return ch
+    }
+    
+    func main() {
+        stream := pump()
+        fmt.Println(<-stream)       // 0
+        fmt.Println(<-stream)       // 1
+    }
+  #+END_SRC
+
+  iterator; channel
+
+  channel directionality: =var recv_only <-chan int=; =var send_only
+  chan<- int=.
+
+  could totally do the lexer with channels and iterate over the
+  motherfucker with range!
+
+  #+BEGIN_SRC go
+    func (p *Vector) iterate(c chan Element) {
+        for i, v := range p.a {
+            c <- v
+        }
+        close(c);
+    }
+    
+    func (p *Vector) Iter() chan Element {
+        c := make(chan Element)
+        go p.iterate(c)
+        return c
+    }
+    
+    // ...
+    
+    for x := range vect.Iter() {
+        fmt.Printf("vec[%d] is %d\n", i, x.(int))
+        i++
+    }
+  #+END_SRC
+
+  asynchronous channels: =c :,= make(chan int, 50)=
+  
+  can receive proceed without blocking? =v, ok = <-c=; =ok :,= c <- v=
+
+  select: communications switch statement:
+
+  #+BEGIN_SRC go
+    select {
+    case v := <-c1:
+        fmt.Printfln("received %d from c1", v)
+    case v := <-c2:
+    fmt.Printfln("received %d from c2", v)
+    }
+  #+END_SRC
+
+  select executes one runnable case at random; if no case is runnable,
+  it blocks until one is. a default clause is always runnable.
+
+  multiplexing: channels are first-class values, sent over
+  channels. service multiplexer.
+
+  #+BEGIN_SRC go
+    chanOfChans := make(chan chan int)
+  #+END_SRC
+
+  channels are like streams in scheme, then.
+
 * DONE structuring packages
   CLOSED: [2010-06-08 Tue 03:20]
   - CLOSING NOTE [2010-06-08 Tue 03:20] \\
